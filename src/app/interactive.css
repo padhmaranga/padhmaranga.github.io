@@ -401,7 +401,8 @@
 
 /* ---------- Heading reveals (only when JS opted in) ---------- */
 @media (prefers-reduced-motion: no-preference) {
-  .reveal-ready :is(.section-heading, .page-heading, .core-feature)
+  .reveal-ready
+    :is(.section-heading, .page-heading, .core-feature)
     :is(h1, h2) {
     clip-path: inset(0 0 105% 0);
     translate: 0 0.35em;
@@ -719,15 +720,16 @@
   .motion-ok .project-art img {
     transition:
       transform 0.55s,
-      clip-path 1.25s cubic-bezier(0.76, 0, 0.24, 1)
-        calc(var(--d, 0ms) + 120ms),
+      clip-path 1.25s cubic-bezier(0.76, 0, 0.24, 1) calc(var(--d, 0ms) + 120ms),
       scale 1.6s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--d, 0ms) + 120ms);
   }
   .motion-ok .project-card:not(.is-in) .project-art img {
     clip-path: inset(100% 0 0 0);
     scale: 1.3;
   }
-  .motion-ok .project-card :is(.project-status, .project-body > *, .project-extra) {
+  .motion-ok
+    .project-card
+    :is(.project-status, .project-body > *, .project-extra) {
     transition:
       opacity 0.7s ease,
       translate 0.9s cubic-bezier(0.16, 1, 0.3, 1);
@@ -740,7 +742,8 @@
   .motion-ok .project-card .project-extra {
     transition-delay: calc(var(--d, 0ms) + 540ms);
   }
-  .motion-ok .project-card:not(.is-in)
+  .motion-ok
+    .project-card:not(.is-in)
     :is(.project-status, .project-body > *, .project-extra) {
     opacity: 0;
     translate: 0 22px;
@@ -805,10 +808,10 @@
       animation: art-parallax linear both;
       animation-timeline: --card;
     }
-    .case-hero {
+    .case-hero:not(:has(> figcaption)) {
       view-timeline: --case-hero block;
     }
-    .case-hero img {
+    .case-hero:not(:has(> figcaption)) > img {
       animation: art-parallax-soft linear both;
       animation-timeline: --case-hero;
     }
@@ -890,8 +893,8 @@
   pointer-events: none;
 }
 .timeline summary strong {
-  background: linear-gradient(90deg, var(--accent), var(--mint)) 0 100% /
-    0% 1px no-repeat;
+  background: linear-gradient(90deg, var(--accent), var(--mint)) 0 100% / 0% 1px
+    no-repeat;
   transition:
     color 0.3s,
     background-size 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);

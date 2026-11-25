@@ -425,3 +425,26 @@ test("client-branded media is available in the local review build", async ({
     );
   }
 });
+
+test("captioned project covers stay clear of captions while scrolling", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("work/unity-webgl-character-customizer/");
+    const figure = page.locator(".case-hero");
+    await figure.evaluate((element) =>
+      element.scrollIntoView({ block: "start", behavior: "instant" }),
+    );
+    const clearance = await figure.evaluate((element) => {
+      const image = element.querySelector("img")!;
+      const caption = element.querySelector("figcaption")!;
+      return (
+        caption.getBoundingClientRect().top -
+        image.getBoundingClientRect().bottom
+      );
+    });
+    expect(clearance).toBeGreaterThanOrEqual(-0.5);
+  }
+});
