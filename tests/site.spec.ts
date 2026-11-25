@@ -29,6 +29,19 @@ test("home, section anchors and desktop screenshot", async ({ page }) => {
       "poster",
     );
     await expect(page.locator(".core canvas")).toHaveCount(0);
+    const selectedProjects = page.locator("#work");
+    await expect(
+      selectedProjects.getByRole("heading", {
+        name: "MotionBridge",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      selectedProjects.getByRole("heading", {
+        name: "Unity WebGL Character Customizer",
+        exact: true,
+      }),
+    ).toHaveCount(0);
     await page.evaluate(() => document.fonts.ready);
     await mkdir("artifacts/screenshots", { recursive: true });
     await page.screenshot({ path: "artifacts/screenshots/home-desktop.png" });

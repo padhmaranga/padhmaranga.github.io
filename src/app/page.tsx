@@ -30,6 +30,15 @@ function Letters({ text, offset = 0 }: { text: string; offset?: number }) {
 }
 import { absolute, indexable, publicAsset } from "@/lib/site";
 
+const homeProjectSlugs = [
+  "unreal-multiplayer-gameplay",
+  "motionbridge",
+  "conversational-character-assistant",
+  "web-ar-character-simulation",
+  "blender-python-pipeline",
+  "e-waste-crm-mobile",
+];
+
 export default function Home() {
   const study = education.find((item) => item.status === "In progress");
   const stack = skillGroups.flatMap((group) => group.skills.slice(0, 3));
@@ -117,14 +126,17 @@ export default function Home() {
           </Action>
         </SectionHeading>
         <div className="projects-grid featured-projects">
-          {professionalProjects
-            .filter((project) => project.featured)
-            .sort((a, b) => Number(Boolean(b.cover)) - Number(Boolean(a.cover)))
-            .map((project) => (
+          {homeProjectSlugs.map((slug) => {
+            const project = professionalProjects.find(
+              (item) => item.slug === slug,
+            );
+            if (!project) return null;
+            return (
               <div key={project.id}>
                 <ProjectCard project={project} />
               </div>
-            ))}
+            );
+          })}
         </div>
       </section>
       <section
