@@ -1,0 +1,985 @@
+/* Interactive layer: hero particle field, cursor, tilt, magnetism, reveals. */
+
+/* ---------- Hero particle field ---------- */
+.hero-field {
+  position: absolute;
+  z-index: -2;
+  top: -110px;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  translate: -50% 0;
+  pointer-events: none;
+  mask-image: linear-gradient(180deg, #000 70%, transparent);
+}
+/* R3F re-enables pointer events on its canvas wrapper; the field is purely
+   decorative (it listens on the section instead), so keep it click-through. */
+.hero-field * {
+  pointer-events: none !important;
+}
+.hero-field-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 38% 50% at 72% 48%, #3b2566aa, transparent 70%),
+    radial-gradient(ellipse 30% 30% at 18% 30%, #1f3a3a55, transparent 70%);
+  animation: field-breathe 9s ease-in-out infinite alternate;
+}
+.hero-field-canvas {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.6s ease;
+}
+.hero-field[data-ready] .hero-field-canvas {
+  opacity: 1;
+}
+.hero-field-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 27px;
+  translate: -50% 0;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--subtle);
+  font: 400 0.64rem/1.4 var(--mono);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  animation: hint-in 1s 0.8s ease both;
+}
+.hero-field-hint span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 10px var(--mint);
+  animation: blink 2.2s ease-in-out infinite;
+}
+@keyframes field-breathe {
+  to {
+    opacity: 0.6;
+    transform: scale(1.06);
+  }
+}
+@keyframes hint-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+/* Inner-page header field: lighter, fades out below the heading. */
+.page-heading {
+  position: relative;
+  isolation: isolate;
+}
+.hero-field-page {
+  top: -150px;
+  bottom: -120px;
+  mask-image: linear-gradient(180deg, #000 55%, transparent);
+}
+.hero-field-page .hero-field-glow {
+  background: radial-gradient(
+    ellipse 30% 55% at 78% 45%,
+    #3b256688,
+    transparent 70%
+  );
+}
+.hero-field-page[data-ready] .hero-field-canvas {
+  opacity: 0.85;
+}
+
+/* Hero content sits above the field; let clicks on empty space reach it. */
+.hero-copy,
+.hero-bottom {
+  position: relative;
+  z-index: 1;
+}
+.hero-portrait {
+  z-index: 1;
+}
+
+/* ---------- Hero title letters ---------- */
+.hero h1 .line {
+  display: block;
+  white-space: nowrap;
+}
+.hero h1 .char {
+  display: inline-block;
+  transition:
+    transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+    color 0.3s;
+  animation: char-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  animation-delay: calc(var(--i) * 32ms + 120ms);
+}
+.portrait-hero h1 .line:first-child .char {
+  color: var(--text);
+}
+.hero h1 .char:hover {
+  color: var(--mint);
+  transform: translateY(-0.12em) rotate(-4deg);
+  transition-duration: 0.12s;
+}
+@keyframes char-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.55em) rotate(8deg);
+    filter: blur(6px);
+  }
+}
+
+/* ---------- Portrait tilt + glare ---------- */
+.hero-portrait {
+  transform: perspective(900px) rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg));
+  transition:
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.4s;
+}
+.hero-portrait.is-tilting {
+  transition-duration: 0.12s;
+  box-shadow:
+    0 30px 90px #0302058c,
+    0 0 0 1px #d5baff40,
+    0 0 60px #8a5fe055;
+}
+.portrait-glare {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 0%),
+    #ffffff2e,
+    transparent 45%
+  );
+  mix-blend-mode: soft-light;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.hero-portrait.is-tilting .portrait-glare {
+  opacity: 1;
+}
+
+/* ---------- Project cards: tilt + spotlight ---------- */
+.project-card {
+  position: relative;
+  transform: perspective(1100px) rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg));
+  transition:
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.25s,
+    box-shadow 0.4s;
+}
+.project-card.is-tilting {
+  transition-duration: 0.15s, 0.25s, 0.4s;
+  box-shadow: 0 24px 60px #05030a99;
+}
+.project-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 50%),
+    #c8a6ff1f,
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+.project-card::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    260px circle at var(--mx, 50%) var(--my, 50%),
+    #e2ccff,
+    transparent 70%
+  );
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+.project-card.is-tilting::before,
+.project-card.is-tilting::after {
+  opacity: 1;
+}
+
+/* ---------- Magnetic controls ---------- */
+.action,
+.nav-cta,
+.round-arrow {
+  transition:
+    color 0.2s,
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.2s,
+    translate 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.action-primary {
+  position: relative;
+  overflow: hidden;
+}
+.action-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    #ffffff80 50%,
+    transparent 70%
+  );
+  translate: -120% 0;
+  transition: translate 0.7s ease;
+}
+.action-primary:hover::before {
+  translate: 120% 0;
+}
+.project-card:hover .round-arrow {
+  background: var(--accent);
+  color: #1b1028;
+  border-color: var(--accent);
+  transform: rotate(45deg);
+}
+
+/* ---------- Cursor ---------- */
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.cursor-on .cursor-dot,
+.cursor-on .cursor-ring {
+  opacity: 1;
+}
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.cursor-ring {
+  width: 0;
+  height: 0;
+}
+.cursor-ring::before {
+  content: "";
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  left: -17px;
+  top: -17px;
+  border: 1px solid #d5baff80;
+  border-radius: 50%;
+  transition:
+    scale 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    background 0.3s,
+    border-color 0.3s;
+}
+.cursor-ring.is-link::before {
+  scale: 1.55;
+  background: #d5baff14;
+  border-color: var(--accent);
+}
+.cursor-ring.is-down::before {
+  scale: 0.8;
+}
+.cursor-ring span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% -50%;
+  color: #1b1028;
+  font: 600 0.7rem/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0;
+  scale: 0.4;
+  transition:
+    opacity 0.25s,
+    scale 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.cursor-ring.is-view::before {
+  scale: 2.4;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.cursor-ring.is-view span {
+  opacity: 1;
+  scale: 1;
+}
+.cursor-on:has(.cursor-ring.is-view) .cursor-dot {
+  opacity: 0;
+}
+
+/* ---------- Scroll progress ---------- */
+.scroll-progress {
+  position: fixed;
+  z-index: 60;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #7b52d6, var(--accent), var(--mint));
+  transform-origin: 0 50%;
+  transform: scaleX(var(--progress, 0));
+  pointer-events: none;
+}
+
+/* ---------- Stack marquee ---------- */
+.marquee {
+  overflow: hidden;
+  border-block: 1px solid var(--border);
+  background: #0f0c15;
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  margin: 0;
+  padding: 18px 0;
+  list-style: none;
+  animation: marquee 48s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+.marquee-track li {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding-right: 28px;
+  color: var(--muted);
+  font: 500 clamp(15px, 1.6vw, 21px) / 1 var(--display);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  transition: color 0.25s;
+}
+.marquee-track li:hover {
+  color: var(--text);
+}
+.marquee-track li::after {
+  content: "✦";
+  color: #7d5cb0;
+  font-size: 0.7em;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- Heading reveals (only when JS opted in) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-ready :is(.section-heading, .page-heading, .core-feature)
+    :is(h1, h2) {
+    clip-path: inset(0 0 105% 0);
+    translate: 0 0.35em;
+    transition:
+      clip-path 0.9s cubic-bezier(0.2, 0.8, 0.2, 1),
+      translate 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .reveal-ready :is(.section-heading, .page-heading) .eyebrow {
+    translate: -12px 0;
+    opacity: 0.2;
+    transition:
+      translate 0.7s ease,
+      opacity 0.7s ease;
+  }
+  .reveal-ready :is(.section-heading, .page-heading).is-in :is(h1, h2),
+  .reveal-ready .core-feature h2.is-in {
+    clip-path: inset(0 0 -10% 0);
+    translate: 0 0;
+  }
+  .reveal-ready :is(.section-heading, .page-heading).is-in .eyebrow {
+    translate: 0 0;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero h1 .char,
+  .marquee-track,
+  .hero-field-glow {
+    animation: none;
+  }
+  .project-card,
+  .hero-portrait {
+    transform: none;
+  }
+}
+
+@media (max-width: 1000px) {
+  .hero-field-hint {
+    display: none;
+  }
+}
+@media (max-width: 720px) {
+  .hero-field {
+    top: -90px;
+    mask-image: linear-gradient(180deg, #000 45%, transparent 85%);
+  }
+  .hero h1 .line {
+    white-space: normal;
+  }
+  .hero-field[data-ready] .hero-field-canvas {
+    opacity: 0.5;
+  }
+  .hero-field-page[data-ready] .hero-field-canvas {
+    opacity: 0.35;
+  }
+}
+
+@media print {
+  .hero-field,
+  .scroll-progress,
+  .marquee,
+  .cursor-dot,
+  .cursor-ring {
+    display: none;
+  }
+}
+
+/* ---------- Page transitions (cross-document View Transitions) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+  .site-header {
+    view-transition-name: site-header;
+  }
+  .scroll-progress {
+    view-transition-name: scroll-progress;
+  }
+  ::view-transition-group(root) {
+    animation-duration: 0.75s;
+  }
+  ::view-transition-old(root) {
+    animation: vt-out 0.75s cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+  ::view-transition-new(root) {
+    animation: vt-in 0.75s cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+  ::view-transition-group(site-header) {
+    animation-duration: 0.4s;
+  }
+  ::view-transition-old(scroll-progress) {
+    display: none;
+  }
+  ::view-transition-new(scroll-progress) {
+    animation: none;
+  }
+}
+@keyframes vt-out {
+  to {
+    opacity: 0.25;
+    scale: 0.94;
+    translate: 0 -2%;
+    filter: blur(6px) saturate(0.6);
+  }
+}
+@keyframes vt-in {
+  from {
+    clip-path: circle(0% at var(--vt-x, 50%) var(--vt-y, 0%));
+    scale: 1.04;
+  }
+  to {
+    clip-path: circle(150% at var(--vt-x, 50%) var(--vt-y, 0%));
+    scale: 1;
+  }
+}
+/* Browsers without cross-document transitions get a soft entrance. */
+@supports not (view-transition-name: none) {
+  @media (prefers-reduced-motion: no-preference) {
+    main {
+      animation: page-enter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+  }
+}
+@keyframes page-enter {
+  from {
+    translate: 0 14px;
+    opacity: 0.4;
+  }
+}
+
+/* ---------- First-visit loader ---------- */
+.loader {
+  display: none;
+}
+.is-loading .loader {
+  position: fixed;
+  z-index: 10000;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 26px;
+  background:
+    radial-gradient(ellipse 50% 45% at 50% 45%, #24173a, transparent 70%),
+    var(--bg);
+  color: var(--text);
+  clip-path: inset(0 0 0 0);
+}
+.loader-core {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  display: grid;
+  place-items: center;
+  animation: loader-pop 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.loader-core svg {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+.loader-track,
+.loader-arc {
+  fill: none;
+  stroke-width: 1.5;
+}
+.loader-track {
+  stroke: #2e2340;
+}
+.loader-arc {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-dasharray: 326.73;
+  stroke-dashoffset: calc(326.73 * (1 - var(--load, 0) / 100));
+  transform: rotate(-90deg);
+  transform-origin: 60px 60px;
+  filter: drop-shadow(0 0 6px #b48cffaa);
+}
+.loader-orbit {
+  fill: var(--mint);
+  transform-origin: 60px 60px;
+  animation: loader-spin 2.4s linear infinite;
+  filter: drop-shadow(0 0 4px var(--mint));
+}
+.loader-mark {
+  font: 700 38px/1 var(--display);
+  letter-spacing: -0.13em;
+  padding-right: 0.12em;
+}
+.loader-mark i {
+  color: var(--accent);
+  font-style: normal;
+  display: inline-block;
+  animation: blink 1.1s ease-in-out infinite;
+}
+.loader-name {
+  display: flex;
+  overflow: hidden;
+  font: 600 clamp(22px, 3.4vw, 34px) / 1.1 var(--display);
+  letter-spacing: -0.05em;
+}
+.loader-name span {
+  display: inline-block;
+  animation: loader-rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i) * 28ms + 150ms);
+}
+.loader-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  width: min(500px, 86vw);
+  color: var(--muted);
+  font: 400 0.68rem/1.4 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  animation: hint-in 0.8s 0.5s ease both;
+}
+.loader-meta [data-loader-count] {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.loader-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #7b52d6, var(--accent), var(--mint));
+  transform-origin: 0 50%;
+  transform: scaleX(calc(var(--load, 0) / 100));
+  box-shadow: 0 0 18px #b48cff;
+}
+
+/* Exit: content zooms through, then the curtain lifts off the page. */
+.is-loaded .loader {
+  pointer-events: none;
+  animation: loader-lift 0.95s cubic-bezier(0.76, 0, 0.24, 1) 0.15s forwards;
+}
+.is-loaded .loader-core,
+.is-loaded .loader-name,
+.is-loaded .loader-meta {
+  animation: loader-out 0.5s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+}
+.is-loaded .loader-name {
+  animation-delay: 0.04s;
+}
+.is-loaded .loader-meta {
+  animation-delay: 0.08s;
+}
+
+/* Hold the hero intro until the curtain lifts. */
+.is-loading:not(.is-loaded) .hero h1 .char {
+  animation-play-state: paused;
+}
+
+@keyframes loader-pop {
+  from {
+    opacity: 0;
+    scale: 0.6;
+    rotate: -40deg;
+  }
+}
+@keyframes loader-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+@keyframes loader-rise {
+  from {
+    translate: 0 110%;
+  }
+}
+@keyframes loader-out {
+  to {
+    opacity: 0;
+    scale: 1.15;
+    translate: 0 -24px;
+    filter: blur(6px);
+  }
+}
+@keyframes loader-lift {
+  to {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-loading .loader {
+    display: none;
+  }
+}
+@media print {
+  .loader {
+    display: none !important;
+  }
+}
+
+/* ---------- Project sections: scroll reveals ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  /* Cards rise and settle; inner text follows; the image wipes up. */
+  .motion-ok .project-card {
+    transition:
+      transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+      border-color 0.25s,
+      box-shadow 0.4s,
+      opacity 0.9s ease var(--d, 0ms),
+      translate 1.1s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0ms),
+      scale 1.1s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0ms);
+  }
+  .motion-ok .project-card:not(.is-in) {
+    opacity: 0;
+    translate: 0 70px;
+    scale: 0.94;
+  }
+  .motion-ok .project-art img {
+    transition:
+      transform 0.55s,
+      clip-path 1.25s cubic-bezier(0.76, 0, 0.24, 1)
+        calc(var(--d, 0ms) + 120ms),
+      scale 1.6s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--d, 0ms) + 120ms);
+  }
+  .motion-ok .project-card:not(.is-in) .project-art img {
+    clip-path: inset(100% 0 0 0);
+    scale: 1.3;
+  }
+  .motion-ok .project-card :is(.project-status, .project-body > *, .project-extra) {
+    transition:
+      opacity 0.7s ease,
+      translate 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: calc(var(--d, 0ms) + 380ms);
+  }
+  .motion-ok .project-card .project-body > :nth-child(2) {
+    transition-delay: calc(var(--d, 0ms) + 460ms);
+  }
+  .motion-ok .project-card .project-body > :nth-child(3),
+  .motion-ok .project-card .project-extra {
+    transition-delay: calc(var(--d, 0ms) + 540ms);
+  }
+  .motion-ok .project-card:not(.is-in)
+    :is(.project-status, .project-body > *, .project-extra) {
+    opacity: 0;
+    translate: 0 22px;
+  }
+
+  /* Generic sections (case-study content, disciplines). */
+  .motion-ok :is([data-reveal], .case-content > section, .content-block) {
+    transition:
+      opacity 0.9s ease var(--d, 0ms),
+      translate 1.1s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0ms);
+  }
+  .motion-ok
+    :is([data-reveal], .case-content > section, .content-block):not(.is-in) {
+    opacity: 0;
+    translate: 0 56px;
+  }
+
+  /* Case-study hero media opens from a framed window. */
+  .motion-ok .case-hero {
+    transition:
+      clip-path 1.3s cubic-bezier(0.76, 0, 0.24, 1),
+      scale 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .motion-ok .case-hero:not(.is-in) {
+    clip-path: inset(14% 18% round 18px);
+    scale: 0.92;
+  }
+
+  /* Facts panel slides in from the side; architecture steps cascade. */
+  .motion-ok .case-facts {
+    transition:
+      opacity 0.9s ease 0.2s,
+      translate 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+  }
+  .motion-ok .case-facts:not(.is-in) {
+    opacity: 0;
+    translate: 48px 0;
+  }
+  .motion-ok .architecture > li {
+    transition:
+      opacity 0.7s ease calc(var(--d, 0ms) * 0.8 + 150ms),
+      translate 0.9s cubic-bezier(0.16, 1, 0.3, 1)
+        calc(var(--d, 0ms) * 0.8 + 150ms);
+  }
+  .motion-ok .architecture > li:not(.is-in) {
+    opacity: 0;
+    translate: -36px 0;
+  }
+}
+
+/* Scroll-linked parallax on project imagery (runs off the main thread). */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Image boxes clip with overflow:hidden (a scroll container), so the
+       timeline is named on an ancestor whose scroller is the page. */
+    .project-card {
+      view-timeline: --card block;
+    }
+    .project-art img {
+      inset: -9% 0 auto;
+      height: 118%;
+      animation: art-parallax linear both;
+      animation-timeline: --card;
+    }
+    .case-hero {
+      view-timeline: --case-hero block;
+    }
+    .case-hero img {
+      animation: art-parallax-soft linear both;
+      animation-timeline: --case-hero;
+    }
+  }
+}
+@keyframes art-parallax {
+  from {
+    translate: 0 -7%;
+  }
+  to {
+    translate: 0 7%;
+  }
+}
+@keyframes art-parallax-soft {
+  from {
+    translate: 0 -4%;
+  }
+  to {
+    translate: 0 4%;
+  }
+}
+
+/* ---------- Skills & experience timeline: hover ---------- */
+@property --glow {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+.timeline details {
+  background:
+    radial-gradient(
+      520px circle at var(--mx, 30%) var(--my, 50%),
+      color-mix(in srgb, #c8a6ff var(--glow), transparent),
+      transparent 55%
+    ),
+    var(--surface);
+  transition:
+    --glow 0.4s ease,
+    translate 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.3s,
+    box-shadow 0.45s;
+}
+.timeline details::before {
+  transition:
+    scale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.4s;
+}
+/* Rail segment that lights up beside the active entry. */
+.timeline summary::before {
+  content: "";
+  position: absolute;
+  left: -17px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--accent) 30%,
+    var(--mint) 70%,
+    transparent
+  );
+  transform: scaleY(0);
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+/* Pulse ring around the dot. */
+.timeline details::after {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 27px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  opacity: 0;
+  pointer-events: none;
+}
+.timeline summary strong {
+  background: linear-gradient(90deg, var(--accent), var(--mint)) 0 100% /
+    0% 1px no-repeat;
+  transition:
+    color 0.3s,
+    background-size 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.timeline summary span {
+  transition:
+    translate 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    color 0.3s;
+}
+.timeline summary::marker {
+  color: var(--subtle);
+  transition: color 0.3s;
+}
+.timeline details[open] {
+  border-color: #46385a;
+}
+.timeline details[open] summary::before {
+  transform: scaleY(1);
+  opacity: 0.55;
+}
+
+/* Tags: individual lift, plus a ripple across the group. */
+.tags li {
+  transition:
+    translate 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.25s,
+    background 0.25s,
+    color 0.25s,
+    box-shadow 0.3s;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .timeline details:hover {
+    --glow: 9%;
+    translate: 6px 0;
+    border-color: #6d5689;
+    box-shadow: 0 18px 44px #05030a99;
+  }
+  .timeline details:hover::before {
+    scale: 1.7;
+    box-shadow:
+      0 0 0 3px #d5baff22,
+      0 0 14px var(--accent);
+  }
+  .timeline details:hover::after {
+    animation: dot-ring 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  }
+  .timeline details:hover summary::before {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  .timeline details:hover summary strong {
+    background-size: 100% 1px;
+  }
+  .timeline details:hover summary span {
+    translate: 4px 0;
+    color: #cbbfd9;
+  }
+  .timeline details:hover summary::marker {
+    color: var(--accent);
+  }
+  .timeline details:hover .tags li {
+    animation: tag-wave 0.7s ease both;
+    animation-delay: calc(var(--i, 0) * 35ms);
+  }
+  .tags li:hover {
+    translate: 0 -3px;
+    border-color: var(--accent);
+    background: #2a1f3a;
+    color: #fff;
+    box-shadow: 0 6px 18px #8a5fe055;
+  }
+}
+
+@keyframes dot-ring {
+  from {
+    opacity: 0.9;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 3.2;
+  }
+}
+@keyframes tag-wave {
+  40% {
+    translate: 0 -4px;
+    border-color: #8f6fc0;
+    color: #fff;
+  }
+}

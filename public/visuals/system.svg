@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 440"><rect width="720" height="440" fill="#1a1727"/><defs><pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#ffffff" opacity=".07"/></pattern></defs><rect width="720" height="440" fill="url(#grid)"/>
+<g stroke="#8a76b0" fill="#252039">
+ <path d="M89 173l90-48 90 48v91l-90 49-90-49z"/><path d="M270 133l90-48 90 48v91l-90 49-90-49z"/><path d="M451 203l90-48 90 48v91l-90 49-90-49z"/>
+ <path d="M89 173l90 48 90-48m-90 48v92m91-180 90 48 90-48m-90 48v92m91-70 90 48 90-48m-90 48v92" fill="none"/>
+</g><path d="M179 221h92l89-40h91l90 70" stroke="#e3cfff" stroke-width="2" fill="none" stroke-dasharray="5 5"/>
+<g fill="#e3cfff"><circle cx="179" cy="221" r="6"/><circle cx="360" cy="181" r="6"/><circle cx="541" cy="251" r="6"/></g></svg>

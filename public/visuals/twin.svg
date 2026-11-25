@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 440"><rect width="720" height="440" fill="#101a20"/><defs><pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#ffffff" opacity=".07"/></pattern></defs><rect width="720" height="440" fill="url(#grid)"/>
+<path d="M70 328L280 110H686L482 328Z" fill="#1c3038" stroke="#5f8e92"/>
+<path d="M175 329L382 111M285 329L482 111M393 329L587 111" stroke="#abc6c6" stroke-opacity=".35" stroke-dasharray="18 12"/>
+<path d="M145 298Q214 278 295 208L399 140" fill="none" stroke="#85e0d9" stroke-width="3"/><path d="M260 299Q327 274 367 233L431 182" fill="none" stroke="#cdb2fd" stroke-width="3"/>
+<g fill="#85e0d9"><circle cx="399" cy="140" r="6"/><circle cx="145" cy="298" r="8"/></g><g fill="#cdb2fd"><circle cx="431" cy="182" r="6"/><circle cx="260" cy="299" r="8"/></g>
+<g font-family="monospace" font-size="16" letter-spacing="2"><text x="418" y="137" fill="#a2e3dd">PHYSICAL</text><text x="450" y="181" fill="#e0ceff">PREDICTED</text></g></svg>

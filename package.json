@@ -1,0 +1,48 @@
+{
+  "name": "rajarathne-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit",
+    "format": "prettier --write .",
+    "serve": "node scripts/serve.mjs",
+    "test": "playwright test",
+    "verify:export": "node scripts/verify-export.mjs"
+  },
+  "dependencies": {
+    "next": "16.4.6",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "three": "^0.185.0",
+    "@react-three/fiber": "^9.8.2",
+    "@react-three/drei": "^10.7.9",
+    "gsap": "^3.13.0",
+    "motion": "^12.0.0",
+    "lenis": "^1.3.0",
+    "lucide-react": "^0.550.0",
+    "@fontsource-variable/space-grotesk": "^5.2.0",
+    "@fontsource-variable/inter": "^5.2.0",
+    "@fontsource/jetbrains-mono": "^5.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/three": "^0.185.0",
+    "typescript": "^5.9",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "prettier": "^3.6",
+    "@playwright/test": "^1.56",
+    "@axe-core/playwright": "^4.11",
+    "tailwindcss": "^4.1",
+    "@tailwindcss/postcss": "^4.1",
+    "postcss": "^8.5"
+  }
+}
